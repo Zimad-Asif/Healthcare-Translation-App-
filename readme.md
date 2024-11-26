@@ -21,5 +21,8 @@ A simple web application that enables real-time multilingual translation for hea
 ### Steps
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/Healthcare-Translation-App.git
+   git clone https://github.com/Zimad-Asif/Healthcare-Translation-App.git
    cd Healthcare-Translation-App
+
+## App Screenshot
+![App Screenshot](Screenshot.png)
