@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="/static/js/script.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+    <title>Healthcare Translation App</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Healthcare Translation Web App</h1>
+        <div>
+            <button id="record-btn">Start Recording</button>
+            <textarea id="spoken-text" rows="3" placeholder="Or type your input here"></textarea>
+            <button id="transcribe-btn">Transcribe</button>
+        </div>
+        <div>
+            <label for="language">Select target language:</label>
+            <select id="language">
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+            </select>
+        </div>
+        <div>
+            <button id="translate-btn">Translate</button>
+        </div>
+        <div>
+            <h2>Original Transcript:</h2>
+            <p id="original-text"></p>
+            <h2>Translated Text:</h2>
+            <p id="translated-text"></p>
+        </div>
+        <div>
+            <button id="speak-btn">Speak Translation</button>
+        </div>
+        <audio id="audio-playback" controls></audio>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        const recordBtn = document.getElementById("record-btn");
+        const transcribeBtn = document.getElementById("transcribe-btn");
+        const translateBtn = document.getElementById("translate-btn");
+        const speakBtn = document.getElementById("speak-btn");
+
+        // Voice-to-Text using Web Speech API
+        recordBtn.addEventListener("click", () => {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = "en-US";
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.start();
+
+            recognition.onresult = (event) => {
+                const spokenText = event.results[0][0].transcript;
+                document.getElementById("spoken-text").value = spokenText;
+                document.getElementById("original-text").innerText = spokenText;
+            };
+
+            recognition.onerror = (event) => {
+                alert(`Error occurred in recognition: ${event.error}`);
+            };
+        });
+
+        // Transcription Placeholder
+        transcribeBtn.addEventListener("click", async () => {
+            const spokenText = document.getElementById("spoken-text").value;
+            const response = await axios.post("/transcribe", { spoken_text: spokenText });
+            document.getElementById("original-text").innerText = response.data.transcript;
+        });
+
+        // Translation
+        translateBtn.addEventListener("click", async () => {
+            const text = document.getElementById("original-text").innerText;
+            const language = document.getElementById("language").value;
+            const response = await axios.post("/translate", { text, language });
+            document.getElementById("translated-text").innerText = response.data.translation;
+        });
+
+        // Text-to-Speech
+        speakBtn.addEventListener("click", async () => {
+            const text = document.getElementById("translated-text").innerText;
+            const language = document.getElementById("language").value;
+            const response = await axios.post("/speak", { text, language });
+            document.getElementById("audio-playback").src = response.data.audio_url;
+        });
+    </script>
+</body>
+</html>

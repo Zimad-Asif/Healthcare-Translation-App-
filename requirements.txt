@@ -1,0 +1,5 @@
+flask
+openai
+gTTS
+flask-cors
+flask-limiter
